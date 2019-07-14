@@ -29,3 +29,14 @@ jobs:
       - store_artifacts:
           path: /go/src/github.com/adamgalloway/switchmate-go/bin
           destination: binaries
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - attach_workspace:
+          at: ./bin
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            VERSION=$(date)
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./bin/
