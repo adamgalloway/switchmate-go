@@ -5,6 +5,7 @@ import (
   "log"
   "fmt"
   "github.com/paypal/gatt"
+  "github.com/paypal/gatt/examples/option"
 )
 
 var uartServiceId = gatt.MustParseUUID("a22bd383-ebdd-49ac-b2e7-40eb55f5d0ab")
@@ -86,12 +87,7 @@ func main() {
     }
   }
 
-  var DefaultClientOptions = []gatt.Option{
-    gatt.LnxMaxConnections(1),
-    gatt.LnxDeviceID(-1, false),
-  }
-
-  d, err := gatt.NewDevice(DefaultClientOptions...)
+  d, err := gatt.NewDevice(option.DefaultClientOptions...)
   if err != nil {
     log.Fatalf("Failed to open device, err: %s\n", err)
   }

@@ -6,10 +6,15 @@ if [[ -z "$package" ]]; then
   exit 1
 fi
 package_split=(${package//\// })
-package_name=${package_split[-1]}
 
-#platforms=("linux/arm" "linux/arm64" "linux/amd64" "darwin/amd64")
-platforms=("linux/arm" "linux/arm64" "linux/amd64")
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # old bash array indexing for os x
+  package_name=${package_split[${#package_split[@]}-1]}
+  platforms=("linux/arm" "linux/arm64" "linux/amd64" "darwin/amd64")
+else
+  package_name=${package_split[-1]}
+  platforms=("linux/arm" "linux/arm64" "linux/amd64")
+fi
 
 for platform in "${platforms[@]}"
 do
