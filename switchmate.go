@@ -25,9 +25,10 @@ func onStateChanged(d gatt.Device, s gatt.State) {
 
 func onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisement, rssi int) {
   if (p.ID() == deviceId) {
-    log.Printf("Preipheral Discovered: %s \n", p.ID())
     p.Device().StopScanning()
     p.Device().Connect(p);
+  } else if (deviceId == "discover") {
+    fmt.Printf("Preipheral Discovered: %s \n", p.ID())
   }
 }
 
@@ -74,12 +75,15 @@ var state []byte
 
 func main() {
   deviceId = os.Args[1]
-  flag := os.Args[2]
 
-  if flag == "on" {
-    state = []byte{0x01}
-  } else {
-    state = []byte{0x00}
+  if deviceId != "discover" {
+    flag := os.Args[2]
+
+    if flag == "on" {
+      state = []byte{0x01}
+    } else {
+      state = []byte{0x00}
+    }
   }
 
   var DefaultClientOptions = []gatt.Option{
