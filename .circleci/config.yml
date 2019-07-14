@@ -28,3 +28,4 @@ jobs:
 
       - store_artifacts:
           path: /go/src/github.com/adamgalloway/switchmate-go/bin
+          destination: binaries
