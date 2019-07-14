@@ -8,7 +8,8 @@ fi
 package_split=(${package//\// })
 package_name=${package_split[-1]}
 
-platforms=("linux/arm" "linux/arm64" "linux/amd64" "darwin/amd64")
+#platforms=("linux/arm" "linux/arm64" "linux/amd64" "darwin/amd64")
+platforms=("linux/arm" "linux/arm64" "linux/amd64")
 
 for platform in "${platforms[@]}"
 do
