@@ -26,6 +26,11 @@ jobs:
       - run: go test -v ./...
       - run: ./build.sh github.com/adamgalloway/switchmate-go
 
+      - persist_to_workspace:
+          root: ./bin
+          paths:
+            - switchmate*
+
       - store_artifacts:
           path: /go/src/github.com/adamgalloway/switchmate-go/bin
           destination: binaries
@@ -35,8 +40,12 @@ jobs:
     steps:
       - attach_workspace:
           at: ./bin
-      - run:
-          name: "Publish Release on GitHub"
-          command: |
-            VERSION=$(date)
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./bin/
+      - run: ghr -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${CIRCLE_BRANCH}${CIRCLE_BUILD_NUM} ./bin/
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build
+      - publish-github-release:
+          requires:
+            - build
