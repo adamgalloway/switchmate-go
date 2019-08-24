@@ -44,21 +44,37 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
   for _, service := range services {
     if (service.UUID().Equal(uartServiceId)) {
       fmt.Printf("Service Found %s\n", service.Name())
+
       cs, _ := p.DiscoverCharacteristics(nil, service)
+      fmt.Println("Discovered Characteristics")
+
       for _, c := range cs {
         if (c.UUID().Equal(uartServiceTXCharId)) {
           fmt.Println("TX Characteristic Found")
-          p.DiscoverDescriptors(nil, c)
-          p.SetNotifyValue(c, func(c *gatt.Characteristic, b []byte, e error) {
-            fmt.Printf("Got back %s\n", string(b))
-          })
-        }
-        if (c.UUID().Equal(uartServiceRXCharId)) {
+          if state == nil {
+            val,_ := p.ReadCharacteristic(c)
+            if val[0] == 0x00 {
+              fmt.Println("Status: off")
+            } else if val[0] == 0x01 {
+              fmt.Println("Status: on")
+              exitCode = 0
+            } else {
+              fmt.Println("Uknown status")
+            }
+          }
+        } else if (c.UUID().Equal(uartServiceRXCharId)) {
           fmt.Println("RX Characteristic Found")
-          p.WriteCharacteristic(c, state, true)
-          fmt.Printf("Wrote %s\n", string(state))
+          if state != nil {
+            p.WriteCharacteristic(c, state, true)
+            fmt.Printf("Wrote %s\n", string(state))
+            exitCode = 0
+          }
+        } else {
+          fmt.Printf("Unknown Characteristic %s\n", c.UUID())
         }
       }
+    } else {
+      fmt.Printf("Uknown Service %s\n", service.UUID())
     }
   }
 }
@@ -72,6 +88,7 @@ var done = make(chan bool)
 
 var deviceId string
 var state []byte
+var exitCode int = 1
 
 func main() {
   deviceId = os.Args[1]
@@ -81,7 +98,7 @@ func main() {
 
     if flag == "on" {
       state = []byte{0x01}
-    } else {
+    } else if flag == "off" {
       state = []byte{0x00}
     }
   }
@@ -105,4 +122,5 @@ func main() {
   d.Init(onStateChanged)
   <-done
   log.Println("Done")
+  os.Exit(exitCode)
 }
