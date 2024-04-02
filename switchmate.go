@@ -69,7 +69,10 @@ out:
 				} else if c.UUID().Equal(uartServiceRXCharId) {
 					fmt.Println("RX Characteristic Found")
 					if state != nil {
-						p.WriteCharacteristic(c, state, true)
+						err := p.WriteCharacteristic(c, state, false)
+						if err != nil {
+							fmt.Printf("Failed to write, err: %s\n", err)
+						}
 						fmt.Printf("Wrote %s\n", string(state))
 						exitCode = 0
 						break out
