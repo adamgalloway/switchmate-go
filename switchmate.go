@@ -71,7 +71,7 @@ out:
 					if state != nil {
 						err := p.WriteCharacteristic(c, state, false)
 						if err != nil {
-							fmt.Printf("Failed to write, err: %s\n", err)
+							log.Fatalf("Failed to write, err: %s\n", err)
 						}
 						fmt.Printf("Wrote %s\n", string(state))
 						exitCode = 0
