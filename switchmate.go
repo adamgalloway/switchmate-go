@@ -17,7 +17,7 @@ func onStateChanged(d gatt.Device, s gatt.State) {
 	fmt.Println("State:", s)
 	switch s {
 	case gatt.StatePoweredOn:
-		fmt.Println("scanning...")
+		fmt.Println("Scanning...")
 		d.Scan([]gatt.UUID{}, false)
 		return
 	default:
@@ -35,6 +35,11 @@ func onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisement, rssi int) {
 }
 
 func onPeriphConnected(p gatt.Peripheral, err error) {
+	if err != nil {
+		log.Printf("Error connecting to peripheral, err: %s\n", err)
+		return
+	}
+
 	fmt.Printf("Peripheral connected\n")
 
 	services, err := p.DiscoverServices(nil)
@@ -53,7 +58,7 @@ out:
 
 			for _, c := range cs {
 				if c.UUID().Equal(uartServiceTXCharId) {
-					fmt.Println("TX Characteristic Found")
+					fmt.Println("Status Characteristic Found")
 					if state == nil {
 						val, _ := p.ReadCharacteristic(c)
 						if val[0] == 0x00 {
@@ -67,7 +72,7 @@ out:
 						break out
 					}
 				} else if c.UUID().Equal(uartServiceRXCharId) {
-					fmt.Println("RX Characteristic Found")
+					fmt.Println("Control Characteristic Found")
 					if state != nil {
 						err := p.WriteCharacteristic(c, state, false)
 						if err != nil {
@@ -77,12 +82,8 @@ out:
 						exitCode = 0
 						break out
 					}
-				} else {
-					fmt.Printf("Unknown Characteristic %s\n", c.UUID())
 				}
 			}
-		} else {
-			fmt.Printf("Uknown Service %s\n", service.UUID())
 		}
 	}
 
